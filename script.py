@@ -4,7 +4,6 @@ from pathlib import Path
 
 DOMINANT_MIN_SHARE = 0.6  
 
-# função a ser retirada
 def load_prospect_companies(path: str | None) -> set[str]:
     if not path:
         return set()
@@ -54,7 +53,6 @@ def find_dominant_company_per_domain(df: pd.DataFrame) -> pd.DataFrame:
     return dominant
 
 def find_canonical_company_by_name(df: pd.DataFrame) -> pd.DataFrame:
-    # encontra, para cada variação de nome de empresa, qual é a forma mais frequente.
     temp = df["Company Name"].astype(str).str.strip()
     name_stats = (
         pd.DataFrame({"Company Name": temp})
@@ -75,20 +73,6 @@ def find_canonical_company_by_name(df: pd.DataFrame) -> pd.DataFrame:
     return canonical
 
 def mark_suspects(df: pd.DataFrame, prospect_companies: set[str]) -> pd.DataFrame:
-    """
-    marca linhas suspeitas com base em:
-      - empresa diferente da dominante dentro do mesmo domínio
-      - empresa não está na lista de empresas prospectadas (se fornecida)
-      - empresa aparece apenas uma vez no arquivo
-      - nome da empresa diferente da forma mais frequente para aquele nome normalizado
-    adc colunas:
-      - domain
-      - dominant_company
-      - dominant_share
-      - is_suspect (bool)
-      - suspect_reasons (texto)
-      - suggested_company (sugestão de correção, se houver)
-    """
     df["domain"] = df["Email"].apply(extract_domain)
     df["company_clean"] = df["Company Name"].astype(str).str.strip()
     df["company_norm"] = df["company_clean"].str.lower()
@@ -191,7 +175,6 @@ def main():
         suspects_path, index=False, encoding="utf-8-sig"
     )
     
-        # --- gerar pac.csv ---
     df_pac = df_marked.copy()
 
     df_pac["Company Name"] = df_pac.apply(
@@ -207,7 +190,7 @@ def main():
 
     df_pac = df_pac.drop(columns=[c for c in cols_to_remove if c in df_pac.columns])
 
-    pac_path = base.with_suffix("pac.csv")
+    pac_path = base.with_suffix(".pac.csv")
     df_pac.to_csv(pac_path, index=False, encoding="utf-8-sig")
 
 
